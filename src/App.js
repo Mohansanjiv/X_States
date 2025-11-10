@@ -23,10 +23,11 @@ function App() {
   // ==========================
   useEffect(() => {
     const fetchCountries = async () => {
+      setCountryError(false);
       try {
         const res = await fetch(`${BASE_URL}/countries`);
+        if (!res.ok) throw new Error("Failed to fetch countries");
         const data = await res.json();
-        console.log(data)
         setCountries(data || []);
       } catch (error) {
         console.error("Failed to fetch countries:", error);
@@ -34,7 +35,6 @@ function App() {
         setCountryError(true);
       }
     };
-
     fetchCountries();
   }, []);
 
@@ -45,6 +45,7 @@ function App() {
     if (!selectedCountry) return;
 
     const fetchStates = async () => {
+      setStateError(false);
       setLoadingStates(true);
       setStates([]);
       setSelectedState("");
@@ -53,7 +54,7 @@ function App() {
 
       try {
         const res = await fetch(`${BASE_URL}/country=${selectedCountry}/states`);
-
+        if (!res.ok) throw new Error("Failed to fetch states");
         const data = await res.json();
         setStates(data || []);
       } catch (error) {
@@ -75,6 +76,7 @@ function App() {
     if (!selectedCountry || !selectedState) return;
 
     const fetchCities = async () => {
+      setCityError(false);
       setLoadingCities(true);
       setCities([]);
       setSelectedCity("");
@@ -83,7 +85,7 @@ function App() {
         const res = await fetch(
           `${BASE_URL}/country=${selectedCountry}/state=${selectedState}/cities`
         );
-
+        if (!res.ok) throw new Error("Failed to fetch cities");
         const data = await res.json();
         setCities(data || []);
       } catch (error) {
@@ -103,12 +105,12 @@ function App() {
       <h1 style={{ textAlign: "center" }}>
         <strong>Select Location</strong>
       </h1>
-      {/* Error messages */}
-      {countryError && (
-        <p data-testid="country-error">Failed to load countries</p>
-      )}
+
+      {/* Error messages (only once per type) */}
+      {countryError && <p data-testid="country-error">Failed to load countries</p>}
       {stateError && <p data-testid="state-error">Failed to load states</p>}
       {cityError && <p data-testid="city-error">Failed to load cities</p>}
+
       <div
         style={{
           padding: "40px",
@@ -119,7 +121,6 @@ function App() {
           gap: "12px",
         }}
       >
-        {/* COUNTRY DROPDOWN */}
         <CustomDropdown
           label="Select Country"
           placeholder="Choose..."
@@ -129,7 +130,6 @@ function App() {
           disabled={false}
         />
 
-        {/* STATE DROPDOWN */}
         <CustomDropdown
           label="Select State"
           placeholder={loadingStates ? "Loading..." : "Choose..."}
@@ -139,7 +139,6 @@ function App() {
           disabled={!selectedCountry || loadingStates}
         />
 
-        {/* CITY DROPDOWN */}
         <CustomDropdown
           label="Select City"
           placeholder={loadingCities ? "Loading..." : "Choose..."}
