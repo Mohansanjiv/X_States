@@ -21,7 +21,6 @@ function App() {
     const fetchCountries = async () => {
       try {
         const res = await fetch(`${BASE_URL}/countries`);
-        // if (!res.ok) throw new Error("Country API failed");
         const data = await res.json();
         console.log(data)
         setCountries(data || []);
@@ -49,7 +48,7 @@ function App() {
 
       try {
         const res = await fetch(`${BASE_URL}/country=${selectedCountry}/states`);
-        if (!res.ok) throw new Error("State API failed");
+
         const data = await res.json();
         setStates(data || []);
       } catch (error) {
@@ -78,7 +77,7 @@ function App() {
         const res = await fetch(
           `${BASE_URL}/country=${selectedCountry}/state=${selectedState}/cities`
         );
-        if (!res.ok) throw new Error("City API failed");
+
         const data = await res.json();
         setCities(data || []);
       } catch (error) {
