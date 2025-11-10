@@ -106,10 +106,17 @@ function App() {
         <strong>Select Location</strong>
       </h1>
 
-      {/* Error messages (only once per type) */}
-      {countryError && <p data-testid="country-error">Failed to load countries</p>}
-      {stateError && <p data-testid="state-error">Failed to load states</p>}
-      {cityError && <p data-testid="city-error">Failed to load cities</p>}
+      {/* Single unified error message */}
+      {(countryError || stateError || cityError) && (
+        <p data-testid="error-message">
+          {countryError
+            ? "Failed to load countries"
+            : stateError
+              ? "Failed to load states"
+              : "Failed to load cities"}
+        </p>
+      )}
+
 
       <div
         style={{
