@@ -14,6 +14,10 @@ function App() {
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
 
+  const [countryError, setCountryError] = useState(false);
+  const [stateError, setStateError] = useState(false);
+  const [cityError, setCityError] = useState(false);
+
   // ==========================
   // Fetch All Countries
   // ==========================
@@ -27,6 +31,7 @@ function App() {
       } catch (error) {
         console.error("Failed to fetch countries:", error);
         setCountries([]);
+        setCountryError(true);
       }
     };
 
@@ -54,6 +59,7 @@ function App() {
       } catch (error) {
         console.error("Failed to fetch states:", error);
         setStates([]);
+        setStateError(true);
       } finally {
         setLoadingStates(false);
       }
@@ -83,6 +89,7 @@ function App() {
       } catch (error) {
         console.error("Failed to fetch cities:", error);
         setCities([]);
+        setCityError(true);
       } finally {
         setLoadingCities(false);
       }
@@ -96,7 +103,12 @@ function App() {
       <h1 style={{ textAlign: "center" }}>
         <strong>Select Location</strong>
       </h1>
-
+      {/* Error messages */}
+      {countryError && (
+        <p data-testid="country-error">Failed to load countries</p>
+      )}
+      {stateError && <p data-testid="state-error">Failed to load states</p>}
+      {cityError && <p data-testid="city-error">Failed to load cities</p>}
       <div
         style={{
           padding: "40px",
