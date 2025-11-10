@@ -14,52 +14,101 @@ function App() {
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
 
-  //  Fetch all countries on mount
+  // ==========================
+  // Fetch All Countries
+  // ==========================
   useEffect(() => {
-    fetch(`${BASE_URL}/countries`)
-      .then((res) => res.json())
-      .then((data) => setCountries(data));
+    const fetchCountries = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/countries`);
+        // if (!res.ok) throw new Error("Country API failed");
+        const data = await res.json();
+        console.log(data)
+        setCountries(data || []);
+      } catch (error) {
+        console.error("Failed to fetch countries:", error);
+        setCountries([]);
+      }
+    };
+
+    fetchCountries();
   }, []);
 
-  // Fetch states when country changes
+  // ==========================
+  // Fetch States by Country
+  // ==========================
   useEffect(() => {
     if (!selectedCountry) return;
 
-    setLoadingStates(true);
-    setStates([]);
-    setSelectedState("");
-    setCities([]);
-    setSelectedCity("");
+    const fetchStates = async () => {
+      setLoadingStates(true);
+      setStates([]);
+      setSelectedState("");
+      setCities([]);
+      setSelectedCity("");
 
-    fetch(
-      `${BASE_URL}/country=${selectedCountry}/states`
-    )
-      .then((res) => res.json())
-      .then((data) => setStates(data))
-      .finally(() => setLoadingStates(false));
+      try {
+        const res = await fetch(`${BASE_URL}/country=${selectedCountry}/states`);
+        if (!res.ok) throw new Error("State API failed");
+        const data = await res.json();
+        setStates(data || []);
+      } catch (error) {
+        console.error("Failed to fetch states:", error);
+        setStates([]);
+      } finally {
+        setLoadingStates(false);
+      }
+    };
+
+    fetchStates();
   }, [selectedCountry]);
 
-  //  Fetch cities when state changes
+  // ==========================
+  // Fetch Cities by State
+  // ==========================
   useEffect(() => {
     if (!selectedCountry || !selectedState) return;
 
-    setLoadingCities(true);
-    setCities([]);
-    setSelectedCity("");
+    const fetchCities = async () => {
+      setLoadingCities(true);
+      setCities([]);
+      setSelectedCity("");
 
-    fetch(
-      `${BASE_URL}/country=${selectedCountry}/state=${selectedState}/cities`
-    )
-      .then((res) => res.json())
-      .then((data) => setCities(data))
-      .finally(() => setLoadingCities(false));
+      try {
+        const res = await fetch(
+          `${BASE_URL}/country=${selectedCountry}/state=${selectedState}/cities`
+        );
+        if (!res.ok) throw new Error("City API failed");
+        const data = await res.json();
+        setCities(data || []);
+      } catch (error) {
+        console.error("Failed to fetch cities:", error);
+        setCities([]);
+      } finally {
+        setLoadingCities(false);
+      }
+    };
+
+    fetchCities();
   }, [selectedCountry, selectedState]);
 
   return (
-    <div style={{ margin: "0 auto", display: "block", width: "600px", }}>
-      <h1 style={{ textAlign: "center" }}><strong>Select Location</strong></h1>
-      <div style={{ padding: "40px", width: "600px", display: "flex", justifyContent: "center", flexDirection: "row" }}>
-        {/*  COUNTRY DROPDOWN */}
+    <div style={{ margin: "0 auto", display: "block", width: "600px" }}>
+      <h1 style={{ textAlign: "center" }}>
+        <strong>Select Location</strong>
+      </h1>
+
+      <div
+        style={{
+          padding: "40px",
+          width: "600px",
+          display: "flex",
+          justifyContent: "center",
+          flexDirection: "row",
+          gap: "12px",
+        }}
+      >
+        {/* COUNTRY DROPDOWN */}
         <CustomDropdown
           label="Select Country"
           placeholder="Choose..."
@@ -69,7 +118,7 @@ function App() {
           disabled={false}
         />
 
-        {/* STATE DROPDOWN (Disabled until a country is selected) */}
+        {/* STATE DROPDOWN */}
         <CustomDropdown
           label="Select State"
           placeholder={loadingStates ? "Loading..." : "Choose..."}
@@ -79,7 +128,7 @@ function App() {
           disabled={!selectedCountry || loadingStates}
         />
 
-        {/* CITY DROPDOWN (Disabled until a state is selected) */}
+        {/* CITY DROPDOWN */}
         <CustomDropdown
           label="Select City"
           placeholder={loadingCities ? "Loading..." : "Choose..."}
@@ -88,16 +137,24 @@ function App() {
           onChange={(val) => setSelectedCity(val)}
           disabled={!selectedState || loadingCities}
         />
-
-
       </div>
-      {selectedCity && <div style={{ width: "600px", display: "flex", justifyContent: "center", flexDirection: "row" }}>
-        <span>
-          <b>You selected </b>   <strong>{selectedCountry}</strong> {selectedState} {selectedCity}
-        </span>
 
-      </div>}
-
+      {/*  Correct message format */}
+      {selectedCity && selectedState && selectedCountry && (
+        <div
+          style={{
+            width: "600px",
+            display: "flex",
+            justifyContent: "center",
+            flexDirection: "row",
+          }}
+        >
+          <span>
+            <b>You selected </b>
+            {selectedCity}, {selectedState}, {selectedCountry}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
