@@ -9,6 +9,10 @@ const CustomDropdown = ({
     onChange,
     disabled = false,
 }) => {
+    const validOptions = options.filter(
+        (opt) => opt && opt.trim() !== ""
+    );
+
     return (
         <div className={`dropdown-container ${disabled ? "disabled" : ""}`}>
             {label && <label className="dropdown-label">{label}</label>}
@@ -20,16 +24,13 @@ const CustomDropdown = ({
                 disabled={disabled}
             >
                 <option value="">{placeholder}</option>
-                {options.length > 0 ? (
-                    options.map((opt) => (
+
+                {validOptions.length > 0 &&
+                    validOptions.map((opt) => (
                         <option key={opt} value={opt}>
                             {opt}
                         </option>
-                    ))
-                ) : (
-                    <option disabled>No options</option>
-                )}
-
+                    ))}
             </select>
         </div>
     );
